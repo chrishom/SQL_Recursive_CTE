@@ -3,10 +3,10 @@
 Recursive query to apply a hierarchical rank to data set
 */
 
-IF OBJECT_ID('tempdb..#TEST', 'U') IS NOT NULL
-DROP TABLE #TEST
+IF OBJECT_ID('tempdb..#EMPLOYEE', 'U') IS NOT NULL
+DROP TABLE #EMPLOYEE
 GO
-CREATE TABLE #TEST
+CREATE TABLE #EMPLOYEE
 (
   EmployeeID int NOT NULL PRIMARY KEY,
   FirstName varchar(50) NOT NULL,
@@ -14,35 +14,35 @@ CREATE TABLE #TEST
   ManagerID int NULL
 )
 GO
-INSERT INTO #TEST VALUES (101, 'Ken', 'Sánchez', NULL)
-INSERT INTO #TEST VALUES (102, 'Terri', 'Duffy', 101)
-INSERT INTO #TEST VALUES (103, 'Roberto', 'Tamburello', 101)
-INSERT INTO #TEST VALUES (104, 'Rob', 'Walters', 102)
-INSERT INTO #TEST VALUES (105, 'Gail', 'Erickson', 102)
-INSERT INTO #TEST VALUES (106, 'Jossef', 'Goldberg', 103)
-INSERT INTO #TEST VALUES (107, 'Dylan', 'Miller', 103)
-INSERT INTO #TEST VALUES (108, 'Diane', 'Margheim', 105)
-INSERT INTO #TEST VALUES (109, 'Gigi', 'Matthew', 105)
-INSERT INTO #TEST VALUES (110, 'Michael', 'Raheem', 106)
+INSERT INTO #EMPLOYEE VALUES (101, 'Ken', 'Sánchez', NULL)
+INSERT INTO #EMPLOYEE VALUES (102, 'Terri', 'Duffy', 101)
+INSERT INTO #EMPLOYEE VALUES (103, 'Roberto', 'Tamburello', 101)
+INSERT INTO #EMPLOYEE VALUES (104, 'Rob', 'Walters', 102)
+INSERT INTO #EMPLOYEE VALUES (105, 'Gail', 'Erickson', 102)
+INSERT INTO #EMPLOYEE VALUES (106, 'Jossef', 'Goldberg', 103)
+INSERT INTO #EMPLOYEE VALUES (107, 'Dylan', 'Miller', 103)
+INSERT INTO #EMPLOYEE VALUES (108, 'Diane', 'Margheim', 105)
+INSERT INTO #EMPLOYEE VALUES (109, 'Gigi', 'Matthew', 105)
+INSERT INTO #EMPLOYEE VALUES (110, 'Michael', 'Raheem', 106)
 
-SELECT * FROM #TEST
+SELECT * FROM #EMPLOYEE
 
 ;WITH
 	cteReports (EmpID, FirstName, LastName, MgrID, EmpLevel) AS (
 		SELECT EmployeeID, FirstName, LastName, ManagerID, 1
-		FROM #TEST
+		FROM #EMPLOYEE
 		WHERE ManagerID IS NULL
 		
 		UNION ALL
 		
 		SELECT e.EmployeeID, e.FirstName, e.LastName, e.ManagerID, r.EmpLevel + 1
-		FROM #TEST e
+		FROM #EMPLOYEE e
 		INNER JOIN cteReports r ON e.ManagerID = r.EmpID
 	  )
 SELECT
   FirstName + ' ' + LastName AS FullName, 
   EmpLevel,
-  (SELECT FirstName + ' ' + LastName FROM #TEST 
+  (SELECT FirstName + ' ' + LastName FROM #EMPLOYEE 
     WHERE EmployeeID = cteReports.MgrID) AS Manager
 FROM cteReports 
 ORDER BY EmpLevel, MgrID
@@ -52,7 +52,9 @@ ORDER BY EmpLevel, MgrID
 Recursive query to pivot wide format column into long format
 */
 
-
+IF OBJECT_ID('tempdb..#WIDEFORMAT', 'U') IS NOT NULL
+DROP TABLE #WIDEFORMAT
+GO
 CREATE TABLE #WIDEFORMAT 
 (
 	ID int NOT NULL PRIMARY KEY,
@@ -69,7 +71,7 @@ SELECT 7,'CF  ,DK' UNION ALL
 SELECT 8,'BM  ,CF  ,DK  ,EF' UNION ALL
 SELECT 9,'BM  ,CF  ,DK  ,EF  ,WL' UNION ALL
 SELECT 10,'BM  ,CF  ,DK  ,EF  ,WL' UNION ALL
-SELECT 11,'CF  ,DK' 
+SELECT 11,'CF  ,DK'  UNION ALL
 SELECT 12,'' 
 
 
